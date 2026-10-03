@@ -1,0 +1,63 @@
+// Estimated macros per typical Saigon serving. Values are approximations (isEstimate: true).
+// [id, name, servingLabel, kcal, protein, carb, fat]
+const ROWS = [
+  ['com-tam-suon', 'Cơm tấm sườn', '1 dĩa', 640, 30, 80, 22],
+  ['com-tam-suon-bi-cha', 'Cơm tấm sườn bì chả', '1 dĩa', 840, 40, 95, 33],
+  ['com-tam-suon-trung', 'Cơm tấm sườn trứng', '1 dĩa', 740, 37, 81, 30],
+  ['xoi-ga', 'Xôi gà', '1 gói', 550, 24, 80, 15],
+  ['xoi-man', 'Xôi mặn', '1 gói', 600, 20, 85, 20],
+  ['pho-bo', 'Phở bò', '1 tô', 450, 25, 60, 12],
+  ['pho-ga', 'Phở gà', '1 tô', 420, 28, 58, 8],
+  ['bun-bo-hue', 'Bún bò Huế', '1 tô', 550, 28, 65, 20],
+  ['hu-tieu', 'Hủ tiếu Nam Vang', '1 tô', 450, 22, 62, 12],
+  ['bun-rieu', 'Bún riêu', '1 tô', 450, 22, 60, 13],
+  ['bun-thit-nuong', 'Bún thịt nướng', '1 tô', 550, 25, 70, 18],
+  ['banh-cuon', 'Bánh cuốn', '1 dĩa', 400, 14, 60, 11],
+  ['banh-mi-trung', 'Bánh mì trứng', '1 ổ', 400, 15, 48, 16],
+  ['banh-mi-op-la', 'Bánh mì ốp la 2 trứng', '1 phần', 450, 17, 45, 22],
+  ['banh-mi-thit', 'Bánh mì thịt', '1 ổ', 450, 18, 52, 19],
+  ['banh-mi-bo-kho', 'Bánh mì bò kho', '1 phần', 600, 30, 60, 26],
+  ['banh-bao', 'Bánh bao nhân thịt', '1 cái', 350, 12, 45, 13],
+  ['com-ga', 'Cơm gà', '1 dĩa', 640, 35, 80, 20],
+  ['com-chien', 'Cơm chiên dương châu', '1 dĩa', 700, 20, 95, 26],
+  ['mi-xao-bo', 'Mì xào bò', '1 dĩa', 650, 28, 75, 26],
+  ['mi-goi-trung', 'Mì gói + 1 trứng', '1 tô', 425, 13.5, 47.5, 20],
+  ['chao-ga', 'Cháo gà', '1 tô', 350, 20, 45, 9],
+  ['goi-cuon', 'Gỏi cuốn', '2 cuốn', 200, 12, 28, 4],
+  ['com-trang', 'Cơm trắng', '1 chén', 200, 4, 44, 0.4],
+  ['thit-kho-trung', 'Thịt kho trứng (không cơm)', '1 phần', 400, 25, 8, 30],
+  ['suon-nuong', 'Sườn nướng', '1 miếng', 300, 22, 8, 20],
+  ['canh-chua-ca', 'Canh chua cá', '1 tô', 180, 18, 12, 6],
+  ['rau-luoc', 'Rau luộc', '1 dĩa', 50, 3, 8, 0.5],
+  ['trung-luoc', 'Trứng luộc', '1 quả', 75, 6.5, 0.5, 5],
+  ['trung-op-la', 'Trứng ốp la', '1 quả', 95, 6.5, 0.5, 7.5],
+  ['uc-ga-luoc', 'Ức gà luộc', '100 g', 165, 31, 0, 3.6],
+  ['dui-ga', 'Đùi gà nướng', '1 cái', 280, 26, 2, 18],
+  ['thit-heo-nac', 'Thịt heo nạc', '100 g', 145, 21, 0, 6.5],
+  ['thit-bo-nac', 'Thịt bò nạc', '100 g', 180, 26, 0, 8],
+  ['ca-hoi', 'Cá hồi', '100 g', 210, 20, 0, 14],
+  ['ca-ngu-hop', 'Cá ngừ hộp (ráo nước)', '1 hộp', 130, 28, 0, 1.5],
+  ['dau-hu', 'Đậu hũ', '100 g', 80, 8, 2, 4.8],
+  ['sua-tuoi-co-duong', 'Sữa tươi có đường', '1 hộp 180ml', 140, 5.5, 18, 5.5],
+  ['sua-tuoi-khong-duong', 'Sữa tươi không đường', '1 hộp 180ml', 115, 5.6, 8.5, 6.3],
+  ['sua-dau-nanh', 'Sữa đậu nành', '1 ly 250ml', 130, 7, 15, 4.5],
+  ['sua-chua', 'Sữa chua', '1 hộp', 100, 3.5, 15, 3],
+  ['whey', 'Whey protein', '1 scoop', 120, 24, 3, 1.5],
+  ['sinh-to-chuoi-sua-yen-mach-bdp', 'Sinh tố chuối + sữa + yến mạch + bơ đậu phộng', '1 ly', 560, 20, 70, 22],
+  ['yen-mach', 'Yến mạch', '50 g', 190, 6.5, 33, 3.5],
+  ['bo-dau-phong', 'Bơ đậu phộng', '1 muỗng canh', 95, 3.5, 3.5, 8],
+  ['dau-phong', 'Đậu phộng', '30 g', 170, 7.5, 5, 14.5],
+  ['hat-dieu', 'Hạt điều', '30 g', 165, 5, 9, 13],
+  ['chuoi', 'Chuối', '1 quả', 105, 1.3, 27, 0.4],
+  ['bo-trai', 'Bơ (trái)', '1/2 trái', 165, 2, 8.5, 14.5],
+  ['khoai-lang', 'Khoai lang luộc', '1 củ 200g', 180, 3, 41, 0.3],
+  ['banh-mi-sandwich', 'Bánh mì sandwich', '2 lát', 160, 5, 28, 2.5],
+  ['ca-phe-sua-da', 'Cà phê sữa đá', '1 ly', 150, 2, 25, 4.5],
+  ['tra-sua', 'Trà sữa trân châu', '1 ly M', 450, 3, 75, 15]
+];
+
+export const SEED_FOODS = ROWS.map(([id, name, servingLabel, kcal, protein, carb, fat]) =>
+  ({ id, name, servingLabel, kcal, protein, carb, fat, isCustom: false, isEstimate: true }));
+
+// "Hay ăn" fallback when there are no logs in the last 30 days.
+export const DEFAULT_CHIPS = ['com-tam-suon', 'xoi-ga', 'pho-bo', 'banh-mi-trung', 'sinh-to-chuoi-sua-yen-mach-bdp', 'whey', 'trung-luoc', 'sua-tuoi-co-duong'];

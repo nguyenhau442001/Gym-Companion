@@ -1,0 +1,9 @@
+{
+  "name": "bulk-tracker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "icons": "node scripts/make-icons.mjs"
+  }
+}

@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lên Cân">
+<meta name="theme-color" content="#121315">
+<style>
+:root,[data-theme="dark"]{--desk:#08090a;--bg:oklch(0.165 0.004 260);--surface:oklch(0.205 0.005 260);--surface2:oklch(0.255 0.006 260);--sheet:oklch(0.195 0.005 260);--track:oklch(1 0 0 / .08);--line:oklch(1 0 0 / .07);--text:oklch(0.965 0.003 260);--text2:oklch(0.76 0.006 260);--text3:oklch(0.6 0.006 260);--acc:oklch(0.8 0.11 160);--accsoft:oklch(0.8 0.11 160 / .14);--p:oklch(0.76 0.11 28);--c:oklch(0.78 0.09 245);--f:oklch(0.83 0.1 88);--onacc:oklch(0.2 0.03 160);--tabbar:oklch(0.165 0.004 260 / .86);--scrim:rgba(0,0,0,.55)}
+[data-theme="light"]{--desk:#d6d6d3;--bg:oklch(0.972 0.003 260);--surface:#fff;--surface2:oklch(0.94 0.004 260);--sheet:oklch(0.985 0.002 260);--track:oklch(0 0 0 / .07);--line:oklch(0 0 0 / .08);--text:oklch(0.2 0.006 260);--text2:oklch(0.42 0.006 260);--text3:oklch(0.52 0.006 260);--acc:oklch(0.58 0.12 160);--accsoft:oklch(0.58 0.12 160 / .12);--p:oklch(0.6 0.15 28);--c:oklch(0.56 0.13 245);--f:oklch(0.66 0.13 75);--onacc:#fff;--tabbar:rgba(250,250,250,.86);--scrim:rgba(0,0,0,.3)}
+*{box-sizing:border-box}
+html,body{margin:0;background:#08090a;-webkit-font-smoothing:antialiased}
+a{color:var(--acc)}a:hover{opacity:.8}
+input,button{font:inherit;color:inherit;-webkit-tap-highlight-color:transparent}
+input::placeholder{color:var(--text3)}
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+</style>
+</helmet>
+<div data-theme="{{ theme }}" style="min-height:100dvh;display:flex;align-items:center;justify-content:center;background:var(--desk);font-family:-apple-system,'SF Pro Text',system-ui,'Helvetica Neue',sans-serif;font-variant-numeric:tabular-nums;color:var(--text)">
+<div id="app" style="position:relative;width:min(390px,100vw);height:min(844px,100dvh);background:var(--bg);overflow:hidden;display:flex;flex-direction:column;box-shadow:0 0 0 1px var(--line),0 30px 80px rgba(0,0,0,.35)">
+
+<main id="scroll" style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:calc(env(safe-area-inset-top,0px) + 18px) 16px calc(env(safe-area-inset-bottom,0px) + 120px)">
+
+<sc-if value="{{ isToday }}" hint-placeholder-val="{{ true }}">
+<section id="screen-today" data-screen-label="Hôm nay" style="display:flex;flex-direction:column;gap:12px">
+  <header style="display:flex;flex-direction:column;gap:2px;padding:4px 4px 6px">
+    <span style="font-size:13px;font-weight:600;color:var(--text3);letter-spacing:.02em">{{ today.dateLabel }}</span>
+    <h1 style="margin:0;font-size:32px;font-weight:700;letter-spacing:-.02em">Hôm nay</h1>
+  </header>
+
+  <div style="background:var(--surface);border-radius:22px;padding:18px;display:flex;align-items:center;gap:18px">
+    <div style="position:relative;width:148px;height:148px;flex:none">
+      <svg id="kcal-ring" width="148" height="148" viewBox="0 0 168 168" style="display:block">
+        <circle cx="84" cy="84" r="74" fill="none" stroke="var(--track)" style="stroke-width:13px"></circle>
+        <circle cx="84" cy="84" r="74" fill="none" stroke="var(--acc)" transform="rotate(-90 84 84)" style="stroke-width:13px;stroke-linecap:round;stroke-dasharray:464.96;stroke-dashoffset:{{ today.ringOffset }};transition:stroke-dashoffset .7s cubic-bezier(.2,.8,.2,1)"></circle>
+      </svg>
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px">
+        <span id="kcal-eaten" data-bind="today.kcal.eaten" style="font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1">{{ today.kcalEaten }}</span>
+        <span style="font-size:12px;color:var(--text3)">/ <span id="kcal-target" data-bind="targets.kcal">{{ today.kcalTarget }}</span> kcal</span>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+      <span style="font-size:13px;color:var(--text2)">Còn lại</span>
+      <span id="kcal-remaining" data-bind="today.kcal.remaining" style="font-size:36px;font-weight:700;letter-spacing:-.03em;line-height:1;color:var(--acc)">{{ today.kcalLeft }}</span>
+      <span style="font-size:13px;color:var(--text3);text-wrap:pretty">kcal để đạt mục tiêu dư <span style="color:var(--text2)">{{ today.surplusLabel }}</span></span>
+    </div>
+  </div>
+
+  <div id="macros" style="background:var(--surface);border-radius:22px;padding:16px 18px;display:flex;flex-direction:column;gap:14px">
+    <div data-macro="protein" style="display:flex;flex-direction:column;gap:7px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span style="display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600"><span style="width:8px;height:8px;border-radius:4px;background:var(--p)"></span>Protein</span>
+        <span style="font-size:15px;white-space:nowrap;flex:none"><b id="protein-eaten">{{ today.p.eaten }}</b><span style="color:var(--text3)"> / {{ today.p.target }} g</span></span>
+      </div>
+      <div style="height:8px;border-radius:4px;background:var(--track);overflow:hidden"><div style="height:100%;border-radius:4px;background:var(--p);width:{{ today.p.w }};transition:width .6s"></div></div>
+    </div>
+    <div data-macro="carb" style="display:flex;flex-direction:column;gap:7px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span style="display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600"><span style="width:8px;height:8px;border-radius:4px;background:var(--c)"></span>Carb</span>
+        <span style="font-size:15px;white-space:nowrap;flex:none"><b id="carb-eaten">{{ today.c.eaten }}</b><span style="color:var(--text3)"> / {{ today.c.target }} g</span></span>
+      </div>
+      <div style="height:8px;border-radius:4px;background:var(--track);overflow:hidden"><div style="height:100%;border-radius:4px;background:var(--c);width:{{ today.c.w }};transition:width .6s"></div></div>
+    </div>
+    <div data-macro="fat" style="display:flex;flex-direction:column;gap:7px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span style="display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600"><span style="width:8px;height:8px;border-radius:4px;background:var(--f)"></span>Fat</span>
+        <span style="font-size:15px;white-space:nowrap;flex:none"><b id="fat-eaten">{{ today.f.eaten }}</b><span style="color:var(--text3)"> / {{ today.f.target }} g</span></span>
+      </div>
+      <div style="height:8px;border-radius:4px;background:var(--track);overflow:hidden"><div style="height:100%;border-radius:4px;background:var(--f);width:{{ today.f.w }};transition:width .6s"></div></div>
+    </div>
+  </div>
+
+  <div id="protein-per-meal" style="background:var(--surface);border-radius:22px;padding:16px 18px;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <span style="font-size:15px;font-weight:600">Protein mỗi bữa</span>
+      <span style="font-size:13px;color:var(--text3)">mục tiêu ~{{ today.ppmTarget }} g/bữa</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px">
+      <sc-for list="{{ today.ppm }}" as="s" hint-placeholder-count="4">
+        <div data-slot="{{ s.id }}" style="display:flex;flex-direction:column;gap:6px">
+          <div style="height:44px;border-radius:10px;background:var(--track);position:relative;overflow:hidden">
+            <div style="position:absolute;left:0;right:0;bottom:0;background:var(--p);opacity:{{ s.op }};height:{{ s.h }};transition:height .6s"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:4px">
+            <span style="font-size:12px;color:var(--text2)">{{ s.label }}</span>
+            <span style="font-size:13px;font-weight:600">{{ s.val }}g</span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div id="meal-list" style="display:flex;flex-direction:column;gap:12px;padding-top:6px">
+    <sc-for list="{{ today.groups }}" as="g" hint-placeholder-count="4">
+      <div data-meal-slot="{{ g.id }}" style="display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding:0 4px">
+          <span style="font-size:17px;font-weight:700">{{ g.label }}</span>
+          <span style="font-size:13px;color:var(--text3)">{{ g.summary }}</span>
+        </div>
+        <div style="background:var(--surface);border-radius:18px;overflow:hidden">
+          <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="1">
+            <div data-log-id="{{ it.id }}" style="display:flex;align-items:center;gap:12px;min-height:58px;padding:10px 16px;border-top:{{ it.border }};background:{{ it.bg }};transition:background 1.2s">
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ it.name }}</span>
+                <span style="font-size:13px;color:var(--text3)">{{ it.serving }}</span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+                <span style="font-size:15px;font-weight:600">{{ it.kcal }} <span style="font-size:12px;font-weight:400;color:var(--text3)">kcal</span></span>
+                <span style="font-size:12px;color:var(--p);font-weight:600">{{ it.p }}g protein</span>
+              </div>
+            </div>
+          </sc-for>
+          <sc-if value="{{ g.isEmpty }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ g.onAdd }}" style="width:100%;min-height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:none;border:0;cursor:pointer;color:var(--text3);font-size:15px">
+              <span>Chưa có món</span>
+              <span style="display:flex;align-items:center;gap:6px;color:var(--acc);font-weight:600">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width:2.4px;stroke-linecap:round"><path d="M12 5v14M5 12h14"></path></svg>Thêm
+              </span>
+            </button>
+          </sc-if>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+</section>
+</sc-if>
+
+<sc-if value="{{ isWeight }}" hint-placeholder-val="{{ false }}">
+<section id="screen-weight" data-screen-label="Cân nặng" style="display:flex;flex-direction:column;gap:12px">
+  <header style="display:flex;flex-direction:column;gap:2px;padding:4px 4px 6px">
+    <span style="font-size:13px;font-weight:600;color:var(--text3);letter-spacing:.02em">{{ weight.subtitle }}</span>
+    <h1 style="margin:0;font-size:32px;font-weight:700;letter-spacing:-.02em">Cân nặng</h1>
+  </header>
+
+  <div style="background:var(--surface);border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;padding:0 2px">
+      <span style="font-size:15px;font-weight:600">Cân sáng nay</span>
+      <span style="font-size:13px;color:{{ weight.statusColor }}">{{ weight.status }}</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <button aria-label="Giảm 0,1 kg" onClick="{{ weight.dec }}" style="width:52px;height:52px;flex:none;border-radius:26px;border:0;background:var(--surface2);cursor:pointer;display:flex;align-items:center;justify-content:center">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width:2.4px;stroke-linecap:round"><path d="M5 12h14"></path></svg>
+      </button>
+      <label style="flex:1;display:flex;align-items:baseline;justify-content:center;gap:6px;min-width:0">
+        <input id="weight-input" data-bind="weight.today" inputmode="decimal" value="{{ weight.input }}" onChange="{{ weight.onInput }}" style="width:130px;text-align:right;background:none;border:0;outline:none;font-size:48px;font-weight:700;letter-spacing:-.03em;padding:0">
+        <span style="font-size:18px;color:var(--text3);width:60px">kg</span>
+      </label>
+      <button aria-label="Tăng 0,1 kg" onClick="{{ weight.inc }}" style="width:52px;height:52px;flex:none;border-radius:26px;border:0;background:var(--surface2);cursor:pointer;display:flex;align-items:center;justify-content:center">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width:2.4px;stroke-linecap:round"><path d="M12 5v14M5 12h14"></path></svg>
+      </button>
+    </div>
+    <button id="weight-save" onClick="{{ weight.save }}" style="height:52px;border-radius:16px;border:0;background:var(--acc);color:var(--onacc);font-size:17px;font-weight:700;cursor:pointer">{{ weight.saveLabel }}</button>
+  </div>
+
+  <div style="background:var(--surface);border-radius:22px;padding:16px 16px 12px;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="display:flex;gap:14px;font-size:12px;color:var(--text2)">
+        <span style="display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:3px;background:var(--text3)"></span>Cân hằng ngày</span>
+        <span style="display:flex;align-items:center;gap:6px"><span style="width:14px;height:3px;border-radius:2px;background:var(--acc)"></span>TB 7 ngày</span>
+      </div>
+      <div style="display:flex;background:var(--surface2);border-radius:10px;padding:2px">
+        <sc-for list="{{ weight.ranges }}" as="r" hint-placeholder-count="2">
+          <button onClick="{{ r.onClick }}" style="min-width:52px;height:30px;border:0;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:{{ r.bg }};color:{{ r.color }}">{{ r.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+    <div id="weight-chart" style="min-height:190px">{{ weight.chart }}</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px">
+    <div style="background:var(--surface);border-radius:18px;padding:14px 12px;display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:12px;color:var(--text2);line-height:1.25">Trung bình 7 ngày</span>
+      <span id="stat-avg7" style="font-size:22px;font-weight:700;letter-spacing:-.02em">{{ weight.avg7 }}<span style="font-size:13px;font-weight:500;color:var(--text3)"> kg</span></span>
+    </div>
+    <div style="background:var(--surface);border-radius:18px;padding:14px 12px;display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:12px;color:var(--text2);line-height:1.25">Thay đổi / tuần</span>
+      <span id="stat-weekly" style="font-size:22px;font-weight:700;letter-spacing:-.02em;color:var(--acc)">{{ weight.weekly }}<span style="font-size:13px;font-weight:500;color:var(--text3)"> kg</span></span>
+    </div>
+    <div style="background:var(--surface);border-radius:18px;padding:14px 12px;display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:12px;color:var(--text2);line-height:1.25">Mục tiêu / tuần</span>
+      <span id="stat-goal" style="font-size:22px;font-weight:700;letter-spacing:-.02em">{{ weight.goal }}<span style="font-size:13px;font-weight:500;color:var(--text3)"> kg</span></span>
+    </div>
+  </div>
+  <p style="margin:2px 6px 0;font-size:13px;line-height:1.45;color:var(--text3);text-wrap:pretty">{{ weight.note }}</p>
+</section>
+</sc-if>
+
+<sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+<section id="screen-settings" data-screen-label="Cài đặt" style="display:flex;flex-direction:column;gap:12px">
+  <header style="padding:4px 4px 6px">
+    <h1 style="margin:0;font-size:32px;font-weight:700;letter-spacing:-.02em">Cài đặt</h1>
+  </header>
+
+  <span style="font-size:13px;font-weight:600;color:var(--text3);padding:4px 6px 0">THÔNG SỐ CƠ THỂ</span>
+  <div id="profile-form" style="background:var(--surface);border-radius:18px;overflow:hidden">
+    <sc-for list="{{ settings.fields }}" as="fd" hint-placeholder-count="4">
+      <label style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border-top:{{ fd.border }}">
+        <span style="flex:1;font-size:16px">{{ fd.label }}</span>
+        <input id="{{ fd.inputId }}" data-field="{{ fd.key }}" type="number" inputmode="{{ fd.mode }}" value="{{ fd.value }}" onChange="{{ fd.onChange }}" style="width:76px;text-align:right;background:none;border:0;outline:none;font-size:17px;font-weight:600;color:var(--acc)">
+        <span style="width:58px;font-size:14px;color:var(--text3)">{{ fd.unit }}</span>
+      </label>
+    </sc-for>
+    <div style="display:flex;flex-direction:column;gap:10px;padding:12px 16px 14px;border-top:1px solid var(--line)">
+      <span style="font-size:16px">Mức dư calo</span>
+      <div id="surplus-select" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:var(--surface2);border-radius:12px;padding:3px">
+        <sc-for list="{{ settings.surplus }}" as="o" hint-placeholder-count="3">
+          <button data-value="{{ o.value }}" onClick="{{ o.onClick }}" style="height:40px;border:0;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;background:{{ o.bg }};color:{{ o.color }};transition:background .2s">{{ o.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <span style="font-size:13px;font-weight:600;color:var(--text3);padding:10px 6px 0">KẾT QUẢ</span>
+  <div id="result-card" style="background:var(--surface);border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:16px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px">
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <span style="font-size:13px;color:var(--text2)">Calo mục tiêu</span>
+        <span id="out-target-kcal" data-calc="targetKcal" style="font-size:40px;font-weight:700;letter-spacing:-.03em;line-height:1;color:var(--acc)">{{ settings.kcal }}<span style="font-size:15px;font-weight:500;color:var(--text3)"> kcal</span></span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;font-size:14px;color:var(--text2)">
+        <span>BMR <b id="out-bmr" data-calc="bmr" style="color:var(--text)">{{ settings.bmr }}</b></span>
+        <span>TDEE <b id="out-tdee" data-calc="tdee" style="color:var(--text)">{{ settings.tdee }}</b></span>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">
+      <div style="background:var(--surface2);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:4px">
+        <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><span style="width:7px;height:7px;border-radius:4px;background:var(--p)"></span>Protein</span>
+        <span id="out-protein" data-calc="protein" style="font-size:20px;font-weight:700">{{ settings.p }}<span style="font-size:13px;font-weight:500;color:var(--text3)"> g</span></span>
+      </div>
+      <div style="background:var(--surface2);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:4px">
+        <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><span style="width:7px;height:7px;border-radius:4px;background:var(--c)"></span>Carb</span>
+        <span id="out-carb" data-calc="carb" style="font-size:20px;font-weight:700">{{ settings.c }}<span style="font-size:13px;font-weight:500;color:var(--text3)"> g</span></span>
+      </div>
+      <div style="background:var(--surface2);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:4px">
+        <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><span style="width:7px;height:7px;border-radius:4px;background:var(--f)"></span>Fat</span>
+        <span id="out-fat" data-calc="fat" style="font-size:20px;font-weight:700">{{ settings.f }}<span style="font-size:13px;font-weight:500;color:var(--text3)"> g</span></span>
+      </div>
+    </div>
+    <span style="font-size:12px;color:var(--text3)">Chỉ đọc · số liệu mẫu, sẽ được tính bởi calc.js</span>
+  </div>
+
+  <span style="font-size:13px;font-weight:600;color:var(--text3);padding:10px 6px 0">GIAO DIỆN</span>
+  <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));background:var(--surface);border-radius:14px;padding:3px">
+    <sc-for list="{{ settings.themes }}" as="t" hint-placeholder-count="2">
+      <button onClick="{{ t.onClick }}" style="height:44px;border:0;border-radius:11px;font-size:15px;font-weight:600;cursor:pointer;background:{{ t.bg }};color:{{ t.color }}">{{ t.label }}</button>
+    </sc-for>
+  </div>
+
+  <span style="font-size:13px;font-weight:600;color:var(--text3);padding:10px 6px 0">DỮ LIỆU</span>
+  <div style="background:var(--surface);border-radius:18px;overflow:hidden">
+    <button id="btn-export" onClick="{{ settings.onExport }}" style="width:100%;min-height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:none;border:0;cursor:pointer;font-size:16px">
+      <span>Export dữ liệu (JSON)</span>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--acc)" style="stroke-width:2px;stroke-linecap:round;stroke-linejoin:round"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M5 14v5h14v-5"></path></svg>
+    </button>
+    <button id="btn-import" onClick="{{ settings.onImport }}" style="width:100%;min-height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:none;border:0;border-top:1px solid var(--line);cursor:pointer;font-size:16px">
+      <span>Import dữ liệu</span>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--acc)" style="stroke-width:2px;stroke-linecap:round;stroke-linejoin:round"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 14v5h14v-5"></path></svg>
+    </button>
+    <input id="import-file" ref="{{ fileRef }}" type="file" accept="application/json,.json" onChange="{{ settings.onFile }}" style="display:none">
+  </div>
+  <span style="font-size:12px;color:var(--text3);text-align:center;padding:12px 0 0">Lên Cân · v1.0 · dữ liệu lưu trên máy</span>
+</section>
+</sc-if>
+
+</main>
+
+<sc-if value="{{ toast.show }}" hint-placeholder-val="{{ false }}">
+  <div role="status" style="position:absolute;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 98px);z-index:20;display:flex;align-items:center;gap:12px;padding:0 6px 0 16px;min-height:52px;border-radius:16px;background:var(--surface2);box-shadow:0 10px 30px rgba(0,0,0,.3)">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--acc)" style="flex:none;stroke-width:2.6px;stroke-linecap:round;stroke-linejoin:round"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg>
+    <span style="flex:1;font-size:14px;line-height:1.3;min-width:0">{{ toast.text }}</span>
+    <sc-if value="{{ toast.canUndo }}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{ toast.undo }}" style="min-height:44px;padding:0 12px;border:0;background:none;color:var(--acc);font-size:15px;font-weight:700;cursor:pointer">Hoàn tác</button>
+    </sc-if>
+  </div>
+</sc-if>
+
+<nav id="tabbar" style="position:absolute;left:0;right:0;bottom:0;z-index:10;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:start;padding:6px 6px calc(env(safe-area-inset-bottom,0px) + 10px);background:var(--tabbar);backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);border-top:1px solid var(--line)">
+  <button data-tab="today" onClick="{{ goToday }}" style="min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:0;cursor:pointer;color:{{ tabColors.today }}">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width:1.9px;stroke-linecap:round;stroke-linejoin:round"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7.5V12l3 2"></path></svg>
+    <span style="font-size:10px;font-weight:600">Hôm nay</span>
+  </button>
+  <button data-tab="weight" onClick="{{ goWeight }}" style="min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:0;cursor:pointer;color:{{ tabColors.weight }}">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width:1.9px;stroke-linecap:round;stroke-linejoin:round"><path d="M4 18 9.5 12l3.5 3L20 7"></path><path d="M15 7h5v5"></path></svg>
+    <span style="font-size:10px;font-weight:600">Cân nặng</span>
+  </button>
+  <div style="display:flex;justify-content:center">
+    <button id="fab-add" aria-label="Thêm món" onClick="{{ openSheet }}" style="width:60px;height:60px;margin-top:-22px;border-radius:30px;border:4px solid var(--bg);background:var(--acc);color:var(--onacc);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.3)" style-active="transform:scale(.94)">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width:2.6px;stroke-linecap:round"><path d="M12 5v14M5 12h14"></path></svg>
+    </button>
+  </div>
+  <button data-tab="workout" disabled="" aria-disabled="true" style="min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:0;color:var(--text3);opacity:.5;position:relative">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width:1.9px;stroke-linecap:round;stroke-linejoin:round"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"></path></svg>
+    <span style="font-size:10px;font-weight:600">Tập luyện</span>
+    <span style="position:absolute;top:2px;right:8px;font-size:8px;font-weight:700;padding:1px 4px;border-radius:4px;background:var(--surface2);color:var(--text2)">v2</span>
+  </button>
+  <button data-tab="settings" onClick="{{ goSettings }}" style="min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:0;cursor:pointer;color:{{ tabColors.settings }}">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width:1.9px;stroke-linecap:round;stroke-linejoin:round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"></path><circle cx="16" cy="7" r="2"></circle><circle cx="10" cy="17" r="2"></circle></svg>
+    <span style="font-size:10px;font-weight:600">Cài đặt</span>
+  </button>
+</nav>
+
+<div onClick="{{ closeSheet }}" style="position:absolute;inset:0;z-index:30;background:var(--scrim);transition:opacity .28s;opacity:{{ sheet.scrimOpacity }};pointer-events:{{ sheet.pe }}"></div>
+<div id="sheet-add" role="dialog" aria-label="Thêm món" data-screen-label="Thêm món" style="position:absolute;left:0;right:0;bottom:0;z-index:31;height:88%;display:flex;flex-direction:column;background:var(--sheet);border-radius:26px 26px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.3);transition:transform .36s cubic-bezier(.2,.9,.25,1);transform:{{ sheet.transform }}">
+  <div style="display:flex;justify-content:center;padding:8px 0 2px"><span style="width:38px;height:5px;border-radius:3px;background:var(--track)"></span></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 8px 8px 20px">
+    <span style="font-size:20px;font-weight:700">Thêm món</span>
+    <button onClick="{{ closeSheet }}" style="min-height:44px;padding:0 12px;border:0;background:none;color:var(--acc);font-size:16px;font-weight:600;cursor:pointer">Xong</button>
+  </div>
+  <div style="padding:0 16px 10px">
+    <label style="display:flex;align-items:center;gap:8px;height:44px;padding:0 12px;border-radius:12px;background:var(--surface2)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" style="flex:none;stroke-width:2.2px;stroke-linecap:round"><circle cx="11" cy="11" r="6.5"></circle><path d="m16 16 4 4"></path></svg>
+      <input id="food-search" type="search" placeholder="Tìm món ăn…" value="{{ sheet.query }}" onChange="{{ sheet.onQuery }}" style="flex:1;min-width:0;background:none;border:0;outline:none;font-size:16px">
+    </label>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:0 16px">
+    <span style="display:block;font-size:12px;font-weight:600;color:var(--text3);padding:6px 4px 6px">{{ sheet.listTitle }}</span>
+    <div id="food-results" style="background:var(--surface);border-radius:16px;overflow:hidden">
+      <sc-for list="{{ sheet.results }}" as="r" hint-placeholder-count="5">
+        <button data-food-id="{{ r.id }}" onClick="{{ r.onAdd }}" style="width:100%;display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 10px 8px 14px;background:none;border:0;border-top:{{ r.border }};cursor:pointer;text-align:left">
+          <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:15px;font-weight:500">{{ r.name }}</span>
+            <span style="font-size:12px;color:var(--text3)">{{ r.meta }}</span>
+          </span>
+          <span style="width:32px;height:32px;flex:none;border-radius:16px;background:var(--accsoft);color:var(--acc);display:flex;align-items:center;justify-content:center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width:2.6px;stroke-linecap:round"><path d="M12 5v14M5 12h14"></path></svg>
+          </span>
+        </button>
+      </sc-for>
+      <sc-if value="{{ sheet.noResults }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:18px 16px;font-size:14px;color:var(--text3)">Không tìm thấy món phù hợp</div>
+      </sc-if>
+    </div>
+  </div>
+  <div style="border-top:1px solid var(--line);padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 14px);display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font-size:12px;font-weight:600;color:var(--text3);padding:0 4px">HAY ĂN · chạm để thêm</span>
+      <div id="quick-chips" style="display:flex;flex-wrap:wrap;gap:8px">
+        <sc-for list="{{ sheet.chips }}" as="ch" hint-placeholder-count="5">
+          <button data-food-id="{{ ch.id }}" onClick="{{ ch.onClick }}" style="min-height:44px;padding:6px 14px;border-radius:14px;border:{{ ch.border }};background:var(--surface);cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;gap:1px;text-align:left" style-active="transform:scale(.96)">
+            <span style="font-size:14px;font-weight:600">{{ ch.name }}</span>
+            <span style="font-size:11px;color:var(--text3)">{{ ch.kcal }} kcal · <span style="color:var(--p)">{{ ch.p }}g P</span></span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:10px">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <span style="font-size:12px;font-weight:600;color:var(--text3);padding:0 4px">BỮA</span>
+        <div id="slot-select" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:var(--surface2);border-radius:12px;padding:3px">
+          <sc-for list="{{ sheet.slots }}" as="s" hint-placeholder-count="4">
+            <button data-value="{{ s.id }}" onClick="{{ s.onClick }}" style="height:40px;border:0;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;padding:0;background:{{ s.bg }};color:{{ s.color }}">{{ s.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <span style="font-size:12px;font-weight:600;color:var(--text3);padding:0 4px">KHẨU PHẦN</span>
+        <div id="serving-select" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:var(--surface2);border-radius:12px;padding:3px">
+          <sc-for list="{{ sheet.servings }}" as="m" hint-placeholder-count="4">
+            <button data-value="{{ m.value }}" onClick="{{ m.onClick }}" style="height:40px;border:0;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;padding:0;background:{{ m.bg }};color:{{ m.color }}">{{ m.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+    <sc-if value="{{ sheet.showConfirm }}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{ sheet.confirm }}" style="height:52px;border-radius:16px;border:0;background:var(--acc);color:var(--onacc);font-size:16px;font-weight:700;cursor:pointer">{{ sheet.confirmLabel }}</button>
+    </sc-if>
+  </div>
+</div>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dark&quot;,&quot;light&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;'dark'|'light'&quot;,&quot;section&quot;:&quot;Giao diện&quot;},&quot;quickAdd&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;instant&quot;,&quot;confirm&quot;],&quot;default&quot;:&quot;instant&quot;,&quot;tsType&quot;:&quot;'instant'|'confirm'&quot;,&quot;section&quot;:&quot;Thêm món&quot;}}">
+const MOCK_DATA = (() => {
+  const today = new Date(2026, 9, 3);
+  const iso = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  const weights = [];
+  for (let day = 0; day < 55; day++) {           // 8 weeks; today (day 55) not yet weighed
+    if (day % 9 === 4) continue;                  // a few missed weigh-ins
+    const d = new Date(today); d.setDate(d.getDate() - (55 - day));
+    const kg = 58.2 + day * (0.3 / 7) + Math.sin(day * 1.7) * 0.35 + Math.sin(day * 0.45) * 0.18;
+    weights.push({ date: iso(d), day, kg: Math.round(kg * 10) / 10 });
+  }
+  return {
+    today: iso(today),
+    profile: { age: 24, heightCm: 175, weightKg: 60.6, sessionsPerWeek: 4, surplus: 400 },
+    targets: { bmr: 1600, tdee: 2500, kcal: 2900, protein: 130, carb: 400, fat: 85, proteinPerMeal: 33, weeklyGainKg: '+0,25–0,5' },
+    slots: [{ id: 'sang', label: 'Sáng' }, { id: 'trua', label: 'Trưa' }, { id: 'chieu', label: 'Chiều' }, { id: 'toi', label: 'Tối' }],
+    servings: [0.5, 1, 1.5, 2],
+    foods: [
+      { id: 'com-tam-suon', name: 'Cơm tấm sườn', serving: '1 đĩa', kcal: 680, p: 38, c: 78, f: 22, frequent: true },
+      { id: 'xoi-ga', name: 'Xôi gà', serving: '1 gói', kcal: 550, p: 24, c: 80, f: 15, frequent: true },
+      { id: 'pho-bo', name: 'Phở bò', serving: '1 tô', kcal: 480, p: 28, c: 62, f: 12, frequent: true },
+      { id: 'banh-mi-trung', name: 'Bánh mì trứng', serving: '1 ổ', kcal: 420, p: 18, c: 50, f: 16, frequent: true },
+      { id: 'sinh-to-chuoi-bo-dau-phong', name: 'Sinh tố chuối bơ đậu phộng', serving: '1 ly', kcal: 520, p: 21, c: 58, f: 24, frequent: true },
+      { id: 'sua-tuoi', name: 'Sữa tươi không đường', serving: '220 ml', kcal: 140, p: 8, c: 11, f: 7 },
+      { id: 'trung-op-la', name: 'Trứng ốp la', serving: '1 quả', kcal: 90, p: 7, c: 0, f: 7 },
+      { id: 'uc-ga-luoc', name: 'Ức gà luộc', serving: '100 g', kcal: 165, p: 31, c: 0, f: 4 },
+      { id: 'com-trang', name: 'Cơm trắng', serving: '1 chén', kcal: 200, p: 4, c: 44, f: 0 },
+      { id: 'bun-bo-hue', name: 'Bún bò Huế', serving: '1 tô', kcal: 520, p: 27, c: 60, f: 18 },
+      { id: 'whey', name: 'Whey protein', serving: '1 muỗng', kcal: 120, p: 24, c: 3, f: 2 },
+      { id: 'chuoi', name: 'Chuối', serving: '1 quả', kcal: 105, p: 1, c: 27, f: 0 }
+    ],
+    todayLog: [
+      { id: 'l1', foodId: 'banh-mi-trung', slot: 'sang', mult: 1 },
+      { id: 'l2', foodId: 'sua-tuoi', slot: 'sang', mult: 1 },
+      { id: 'l3', foodId: 'com-tam-suon', slot: 'trua', mult: 1 },
+      { id: 'l4', foodId: 'trung-op-la', slot: 'trua', mult: 1 },
+      { id: 'l5', foodId: 'sinh-to-chuoi-bo-dau-phong', slot: 'chieu', mult: 1 }
+    ],
+    weights
+  };
+})();
+
+const fmt = n => Math.round(n).toLocaleString('vi-VN');
+const fmt1 = n => (Math.round(n * 10) / 10).toFixed(1).replace('.', ',');
+const multLabel = m => String(m).replace('.', ',') + '×';
+const pct = (a, b) => Math.max(0, Math.min(100, (a / b) * 100)) + '%';
+
+class Component extends DCLogic {
+  state = {
+    tab: 'today', theme: null,
+    log: MOCK_DATA.todayLog.slice(), weights: MOCK_DATA.weights.slice(), profile: { ...MOCK_DATA.profile },
+    sheetOpen: false, query: '', slot: this.defaultSlot(), mult: 1, picked: null,
+    weightInput: fmt1(MOCK_DATA.weights[MOCK_DATA.weights.length - 1].kg), weightSaved: false,
+    range: 8, toast: null, newId: null
+  };
+  fileRef = React.createRef();
+
+  defaultSlot() { const h = new Date().getHours(); return h < 10 ? 'sang' : h < 14 ? 'trua' : h < 18 ? 'chieu' : 'toi'; }
+  showToast(text, undoId) {
+    clearTimeout(this._t);
+    this.setState({ toast: { text, undoId } });
+    this._t = setTimeout(() => this.setState({ toast: null, newId: null }), 3800);
+  }
+  componentWillUnmount() { clearTimeout(this._t); }
+
+  addFood(foodId) {
+    const d = MOCK_DATA, f = d.foods.find(x => x.id === foodId);
+    const id = 'l' + Date.now();
+    const slot = d.slots.find(s => s.id === this.state.slot);
+    this.setState(s => ({ log: [...s.log, { id, foodId, slot: s.slot, mult: s.mult }], sheetOpen: false, picked: null, query: '', tab: 'today', newId: id }));
+    this.showToast(`${f.name} · ${slot.label} · ${multLabel(this.state.mult)}`, id);
+  }
+
+  // ---------- render functions (pure: data in → view-model out) ----------
+  renderToday(d, log, newId) {
+    const T = d.targets, byId = Object.fromEntries(d.foods.map(f => [f.id, f]));
+    const items = log.map(l => { const f = byId[l.foodId]; return { ...l, f, kcal: f.kcal * l.mult, p: f.p * l.mult, c: f.c * l.mult, fat: f.f * l.mult }; });
+    const sum = (arr, k) => arr.reduce((a, i) => a + i[k], 0);
+    const kcal = sum(items, 'kcal'), P = sum(items, 'p'), C = sum(items, 'c'), F = sum(items, 'fat');
+    const now = new Date(2026, 9, 3);
+    const dateLabel = now.toLocaleDateString('vi-VN', { weekday: 'long', day: 'numeric', month: 'numeric' }).toUpperCase();
+    return {
+      dateLabel,
+      kcalEaten: fmt(kcal), kcalTarget: fmt(T.kcal), kcalLeft: fmt(Math.max(0, T.kcal - kcal)),
+      surplusLabel: '+' + this.state.profile.surplus,
+      ringOffset: 464.96 * (1 - Math.min(1, kcal / T.kcal)),
+      p: { eaten: fmt(P), target: T.protein, w: pct(P, T.protein) },
+      c: { eaten: fmt(C), target: T.carb, w: pct(C, T.carb) },
+      f: { eaten: fmt(F), target: T.fat, w: pct(F, T.fat) },
+      ppmTarget: T.proteinPerMeal,
+      ppm: d.slots.map(s => { const v = sum(items.filter(i => i.slot === s.id), 'p'); return { id: s.id, label: s.label, val: fmt(v), h: pct(v, T.proteinPerMeal), op: v >= T.proteinPerMeal ? 1 : 0.55 }; }),
+      groups: d.slots.map(s => {
+        const g = items.filter(i => i.slot === s.id);
+        return {
+          id: s.id, label: s.label, isEmpty: g.length === 0,
+          summary: g.length ? `${fmt(sum(g, 'kcal'))} kcal · ${fmt(sum(g, 'p'))}g P` : '',
+          onAdd: () => this.setState({ sheetOpen: true, slot: s.id }),
+          items: g.map((i, k) => ({
+            id: i.id, name: i.f.name, kcal: fmt(i.kcal), p: fmt(i.p),
+            serving: i.mult === 1 ? i.f.serving : `${multLabel(i.mult)} ${i.f.serving}`,
+            border: k ? '1px solid var(--line)' : '0', bg: i.id === newId ? 'var(--accsoft)' : 'transparent'
+          }))
+        };
+      })
+    };
+  }
+
+  renderWeight(d, weights, range) {
+    const ws = weights.slice().sort((a, b) => a.day - b.day);
+    const ma = ws.map(w => { const win = ws.filter(x => x.day > w.day - 7 && x.day <= w.day); return { day: w.day, kg: win.reduce((a, x) => a + x.kg, 0) / win.length }; });
+    const lastDay = 55, start = lastDay - range * 7 + 1;
+    const pts = ws.filter(w => w.day >= start), mas = ma.filter(m => m.day >= start);
+    const all = pts.map(p => p.kg).concat(mas.map(m => m.kg));
+    const lo = Math.floor((Math.min(...all) - 0.2) * 2) / 2, hi = Math.ceil((Math.max(...all) + 0.2) * 2) / 2;
+    const W = 306, top = 8, bot = 170;
+    const X = day => ((day - start) / (lastDay - start)) * W;
+    const Y = kg => bot - ((kg - lo) / (hi - lo)) * (bot - top);
+    const grid = [0, 1, 2, 3].map(k => { const v = lo + (hi - lo) * k / 3; return { y: Y(v), label: fmt1(v) }; });
+    const xl = [0, 1, 2, 3].map(k => {
+      const day = Math.round(start + (lastDay - start) * k / 3);
+      const dt = new Date(2026, 9, 3); dt.setDate(dt.getDate() - (lastDay - day));
+      return { x: X(day), label: `${dt.getDate()}/${dt.getMonth() + 1}`, anchor: k === 0 ? 'start' : k === 3 ? 'end' : 'middle' };
+    });
+    const dots = pts.map(p => ({ x: X(p.day), y: Y(p.kg) }));
+    const path = mas.map((m, i) => (i ? 'L' : 'M') + X(m.day).toFixed(1) + ' ' + Y(m.kg).toFixed(1)).join(' ');
+    const mLast = ma[ma.length - 1], mPrev = ma.filter(m => m.day <= mLast.day - 7).pop();
+    const weekly = mLast.kg - mPrev.kg;
+    return {
+      chart: { grid, xl, dots, path, last: { x: X(mLast.day), y: Y(mLast.kg) } },
+      avg7: fmt1(mLast.kg), weekly: (weekly >= 0 ? '+' : '') + fmt1(weekly), goal: d.targets.weeklyGainKg,
+      note: weekly >= 0.25 && weekly <= 0.5 ? 'Đang tăng đúng nhịp lean bulk. Giữ nguyên mức calo hiện tại.' : weekly < 0.25 ? 'Tăng chậm hơn mục tiêu — cân nhắc thêm ~150 kcal/ngày.' : 'Tăng nhanh hơn mục tiêu — cân nhắc giảm ~150 kcal/ngày.'
+    };
+  }
+
+  renderSettings(d, profile) {
+    const T = d.targets;
+    const fields = [
+      { key: 'age', label: 'Tuổi', unit: 'tuổi', mode: 'numeric' },
+      { key: 'heightCm', label: 'Chiều cao', unit: 'cm', mode: 'numeric' },
+      { key: 'weightKg', label: 'Cân nặng', unit: 'kg', mode: 'decimal' },
+      { key: 'sessionsPerWeek', label: 'Số buổi tập', unit: 'buổi/tuần', mode: 'numeric' }
+    ];
+    return {
+      fields: fields.map((f, i) => ({ ...f, inputId: 'in-' + f.key, value: profile[f.key], border: i ? '1px solid var(--line)' : '0',
+        onChange: e => { const v = e.target.value; this.setState(s => ({ profile: { ...s.profile, [f.key]: v } })); } })),
+      surplus: [300, 400, 500].map(v => { const on = Number(profile.surplus) === v; return { value: v, label: '+' + v, bg: on ? 'var(--acc)' : 'transparent', color: on ? 'var(--onacc)' : 'var(--text2)', onClick: () => this.setState(s => ({ profile: { ...s.profile, surplus: v } })) }; }),
+      bmr: fmt(T.bmr), tdee: fmt(T.tdee), kcal: fmt(T.kcal), p: T.protein, c: T.carb, f: T.fat
+    };
+  }
+
+  buildChart(c) {
+    const h = React.createElement;
+    return h('svg', { viewBox: '0 0 342 190', style: { width: '100%', height: 'auto', display: 'block', overflow: 'visible' } },
+      ...c.grid.map((g, i) => h('g', { key: 'g' + i },
+        h('line', { x1: 0, x2: W_PLOT, y1: g.y, y2: g.y, stroke: 'var(--line)', strokeWidth: 1 }),
+        h('text', { x: 342, y: g.y + 3.5, textAnchor: 'end', fill: 'var(--text3)', fontSize: 10.5 }, g.label))),
+      ...c.xl.map((x, i) => h('text', { key: 'x' + i, x: x.x, y: 188, textAnchor: x.anchor, fill: 'var(--text3)', fontSize: 10.5 }, x.label)),
+      ...c.dots.map((d, i) => h('circle', { key: 'd' + i, cx: d.x, cy: d.y, r: 2.6, fill: 'var(--text3)', opacity: 0.7 })),
+      h('path', { key: 'ma', d: c.path, fill: 'none', stroke: 'var(--acc)', strokeWidth: 2.5, strokeLinecap: 'round', strokeLinejoin: 'round' }),
+      h('circle', { key: 'last', cx: c.last.x, cy: c.last.y, r: 5, fill: 'var(--acc)', stroke: 'var(--surface)', strokeWidth: 2.5 })
+    );
+  }
+
+  renderVals() {
+    const d = MOCK_DATA, s = this.state;
+    const theme = s.theme || this.props.theme || 'dark';
+    const confirmMode = (this.props.quickAdd || 'instant') === 'confirm';
+    const seg = on => ({ bg: on ? 'var(--surface)' : 'transparent', color: on ? 'var(--text)' : 'var(--text2)' });
+    const q = s.query.trim().toLowerCase();
+    const results = d.foods.filter(f => !q || f.name.toLowerCase().includes(q));
+    const picked = s.picked && d.foods.find(f => f.id === s.picked);
+    const w = this.renderWeight(d, s.weights, s.range);
+    const parseKg = () => parseFloat(String(s.weightInput).replace(',', '.')) || 0;
+    const bump = delta => this.setState({ weightInput: fmt1(parseKg() + delta), weightSaved: false });
+    const hasToday = s.weights.some(x => x.day === 55);
+    const tc = t => s.tab === t ? 'var(--acc)' : 'var(--text3)';
+    return {
+      theme,
+      isToday: s.tab === 'today', isWeight: s.tab === 'weight', isSettings: s.tab === 'settings',
+      tabColors: { today: tc('today'), weight: tc('weight'), settings: tc('settings') },
+      goToday: () => this.setState({ tab: 'today' }), goWeight: () => this.setState({ tab: 'weight' }), goSettings: () => this.setState({ tab: 'settings' }),
+      openSheet: () => this.setState({ sheetOpen: true }), closeSheet: () => this.setState({ sheetOpen: false, picked: null }),
+      today: this.renderToday(d, s.log, s.newId),
+      weight: {
+        ...w, chart: this.buildChart(w.chart),
+        subtitle: hasToday ? 'ĐÃ CÂN HÔM NAY' : 'CHƯA CÂN HÔM NAY',
+        input: s.weightInput, status: s.weightSaved ? 'Đã lưu' : 'Thứ Bảy, 3/10', statusColor: s.weightSaved ? 'var(--acc)' : 'var(--text3)',
+        saveLabel: s.weightSaved ? 'Đã lưu ✓' : hasToday ? 'Cập nhật' : 'Lưu cân nặng',
+        onInput: e => this.setState({ weightInput: e.target.value, weightSaved: false }),
+        dec: () => bump(-0.1), inc: () => bump(0.1),
+        save: () => { const kg = parseKg(); if (!kg) return; this.setState(st => ({ weights: [...st.weights.filter(x => x.day !== 55), { date: d.today, day: 55, kg }], weightSaved: true })); this.showToast(`Đã lưu ${fmt1(kg)} kg`); },
+        ranges: [4, 8].map(r => ({ label: r + ' tuần', ...seg(s.range === r), onClick: () => this.setState({ range: r }) }))
+      },
+      settings: {
+        ...this.renderSettings(d, s.profile),
+        themes: [['dark', 'Tối'], ['light', 'Sáng']].map(([v, l]) => ({ label: l, ...seg(theme === v), onClick: () => this.setState({ theme: v }) })),
+        onExport: () => {
+          const blob = new Blob([JSON.stringify({ ...d, profile: s.profile, todayLog: s.log, weights: s.weights }, null, 2)], { type: 'application/json' });
+          const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `len-can-${d.today}.json`; a.click();
+          setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+          this.showToast('Đã xuất dữ liệu JSON');
+        },
+        onImport: () => this.fileRef.current && this.fileRef.current.click(),
+        onFile: e => { const f = e.target.files && e.target.files[0]; if (f) this.showToast(`Đã chọn ${f.name} · chờ nối logic import`); e.target.value = ''; }
+      },
+      fileRef: this.fileRef,
+      toast: { show: !!s.toast, text: s.toast ? s.toast.text : '', canUndo: !!(s.toast && s.toast.undoId),
+        undo: () => { const id = s.toast && s.toast.undoId; clearTimeout(this._t); this.setState(st => ({ log: st.log.filter(l => l.id !== id), toast: null, newId: null })); } },
+      sheet: {
+        transform: s.sheetOpen ? 'translateY(0)' : 'translateY(105%)',
+        scrimOpacity: s.sheetOpen ? 1 : 0, pe: s.sheetOpen ? 'auto' : 'none',
+        query: s.query, onQuery: e => this.setState({ query: e.target.value }),
+        listTitle: q ? `KẾT QUẢ (${results.length})` : 'TẤT CẢ MÓN',
+        noResults: results.length === 0,
+        results: results.map((f, i) => ({ id: f.id, name: f.name, meta: `${f.serving} · ${f.kcal} kcal · ${f.p}g P`, border: i ? '1px solid var(--line)' : '0', onAdd: () => this.addFood(f.id) })),
+        chips: d.foods.filter(f => f.frequent).map(f => ({
+          id: f.id, name: f.name, kcal: fmt(f.kcal * s.mult), p: fmt(f.p * s.mult),
+          border: s.picked === f.id ? '1.5px solid var(--acc)' : '1px solid var(--line)',
+          onClick: () => confirmMode ? this.setState({ picked: f.id }) : this.addFood(f.id)
+        })),
+        slots: d.slots.map(x => ({ id: x.id, label: x.label, ...seg(s.slot === x.id), onClick: () => this.setState({ slot: x.id }) })),
+        servings: d.servings.map(m => ({ value: m, label: multLabel(m), ...seg(s.mult === m), onClick: () => this.setState({ mult: m }) })),
+        showConfirm: confirmMode && !!picked,
+        confirmLabel: picked ? `Thêm ${picked.name} · ${fmt(picked.kcal * s.mult)} kcal` : '',
+        confirm: () => picked && this.addFood(picked.id)
+      }
+    };
+  }
+}
+const W_PLOT = 306;
+</script>
+</body>
+</html>
