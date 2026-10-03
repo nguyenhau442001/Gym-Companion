@@ -6,6 +6,8 @@ import {
 } from './calc.js';
 import * as db from './db.js';
 import { DEFAULT_CHIPS } from '../data/foods.seed.js';
+import { $, fmt, fmt1, signed1, multLabel, pct, parseNum, esc, sortVi, setLead, setSeg, setIfIdle, showToast, initToast } from './dom.js';
+import * as workout from './workout.js';
 
 const RING = 464.96;
 const W_PLOT = 306;
@@ -21,31 +23,7 @@ const state = {
 };
 
 // ---------- helpers ----------
-const $ = id => document.getElementById(id);
-const fmt = n => Math.round(n).toLocaleString('vi-VN');
-const fmt1 = n => (Math.round(n * 10) / 10).toFixed(1).replace('.', ',');
-const signed1 = n => (n >= 0 ? '+' : '−') + fmt1(Math.abs(n));
-const multLabel = m => String(m).replace('.', ',') + '×';
-const pct = (a, b) => (b > 0 ? Math.max(0, Math.min(100, (a / b) * 100)) : 0) + '%';
-const parseNum = v => { const n = parseFloat(String(v).replace(',', '.')); return Number.isFinite(n) ? n : null; };
-const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const slotLabel = id => (SLOTS.find(s => s.id === id) || {}).label || '';
-const sortVi = (a, b) => a.name.localeCompare(b.name, 'vi');
-/** Replace the leading text node (keeps the unit <span> that follows it in the design markup). */
-function setLead(id, text) {
-  const el = $(id);
-  if (el.firstChild && el.firstChild.nodeType === 3) el.firstChild.nodeValue = text;
-  else el.insertBefore(document.createTextNode(text), el.firstChild);
-}
-function setSeg(container, isOn, accent = false) {
-  for (const b of $(container).querySelectorAll('button[data-value]')) {
-    const on = isOn(b.dataset.value);
-    b.style.background = on ? (accent ? 'var(--acc)' : 'var(--surface)') : 'transparent';
-    b.style.color = on ? (accent ? 'var(--onacc)' : 'var(--text)') : 'var(--text2)';
-    b.setAttribute('aria-pressed', on);
-  }
-}
-const setIfIdle = (el, v) => { if (document.activeElement !== el) el.value = v; };
 
 // ---------- derived ----------
 function derived() {
@@ -211,11 +189,15 @@ function renderSettings(d) {
     : a7 != null ? `Mifflin-St Jeor · theo cân nặng TB 7 ngày ${fmt1(a7)} kg`
     : `Mifflin-St Jeor · theo lần cân gần nhất ${fmt1(d.kg)} kg`;
   setSeg('theme-select', v => v === state.theme);
+  setSeg('rest-select', v => Number(v) === (p.restSec ?? 90), true);
+  setSeg('increment-select', v => Number(v) === (p.increment ?? 2.5), true);
   const pi = state.pendingImport;
   $('import-confirm').hidden = !pi;
   if (pi) {
     const c = pi.counts;
-    $('import-summary').textContent = `${pi.fileName}: ${c.weights} lần cân · ${c.foodLogs} món đã ghi · ${c.foods} món tự tạo · ${c.profile ? 'có' : 'không có'} hồ sơ. Toàn bộ dữ liệu hiện tại sẽ bị thay thế.`;
+    const training = c.workouts != null ? ` · ${c.workouts} buổi tập · ${c.templates} mẫu · ${c.exercises} bài tự tạo` : '';
+    $('import-summary').textContent = `${pi.fileName}: ${c.weights} lần cân · ${c.foodLogs} món đã ghi · ${c.foods} món tự tạo${training} · ${c.profile ? 'có' : 'không có'} hồ sơ. `
+      + (c.workouts != null ? 'Toàn bộ dữ liệu hiện tại sẽ bị thay thế.' : 'Dữ liệu ăn uống và cân nặng sẽ bị thay thế; dữ liệu tập luyện giữ nguyên.');
   }
 }
 
@@ -276,7 +258,7 @@ function renderSheet() {
 }
 
 function renderTabs() {
-  for (const t of ['today', 'weight', 'settings']) {
+  for (const t of ['today', 'weight', 'workout', 'settings']) {
     $('screen-' + t).hidden = state.tab !== t;
     document.querySelector(`[data-tab="${t}"]`).style.color = state.tab === t ? 'var(--acc)' : 'var(--text3)';
   }
@@ -295,19 +277,8 @@ export function render() {
   renderWeight(d);
   renderSettings(d);
   renderSheet();
+  workout.render();
 }
-
-// ---------- toast ----------
-let toastTimer = null, undoFn = null;
-function showToast(text, undo) {
-  clearTimeout(toastTimer);
-  undoFn = undo || null;
-  $('toast-text').textContent = text;
-  $('toast-undo').hidden = !undo;
-  $('toast').hidden = false;
-  toastTimer = setTimeout(hideToast, 3800);
-}
-function hideToast() { clearTimeout(toastTimer); $('toast').hidden = true; undoFn = null; }
 
 // ---------- actions ----------
 async function reload() {
@@ -468,11 +439,12 @@ async function applyImport() {
   await db.ensureSeed();
   await reload();
   if (!state.profile) {
-    state.profile = { ...DEFAULT_PROFILE, createdAt: Date.now() };
+    state.profile = { ...DEFAULT_PROFILE, createdAt: Date.now(), templatesSeeded: true };
     await db.saveProfile(state.profile);
   }
   state.pendingImport = null;
   state.weightInput = initialWeightInput();
+  await workout.reload();
   render();
   showToast(`Đã nhập ${pi.counts.foodLogs} món · ${pi.counts.weights} lần cân`);
 }
@@ -495,8 +467,9 @@ export function refreshDay() {
 }
 
 // ---------- wiring ----------
-export function init(data, { theme }) {
+export function init(data, { theme, training }) {
   Object.assign(state, data);
+  workout.init(training, { getProfile: () => state.profile, getToday: () => state.today, setTab: t => { state.tab = t; render(); } });
   state.theme = theme;
   state.weightInput = initialWeightInput();
 
@@ -560,6 +533,8 @@ export function init(data, { theme }) {
     showToast(`Đã lưu ${fmt1(kg)} kg cho hôm nay`);
   });
   $('surplus-select').addEventListener('click', e => { const b = e.target.closest('button[data-value]'); if (b) updateProfile({ surplus: Number(b.dataset.value) }); });
+  $('rest-select').addEventListener('click', e => { const b = e.target.closest('button[data-value]'); if (b) updateProfile({ restSec: Number(b.dataset.value) }); });
+  $('increment-select').addEventListener('click', e => { const b = e.target.closest('button[data-value]'); if (b) updateProfile({ increment: Number(b.dataset.value) }); });
   $('goal-rate-select').addEventListener('click', e => { const b = e.target.closest('button[data-value]'); if (b) updateProfile({ goalRate: Number(b.dataset.value) }); });
   $('theme-select').addEventListener('click', e => {
     const b = e.target.closest('button[data-value]');
@@ -590,9 +565,8 @@ export function init(data, { theme }) {
   $('food-form-cancel').addEventListener('click', () => { state.editingFood = null; renderSheet(); });
   $('food-form-delete').addEventListener('click', () => deleteFoodFromForm().catch(err => showToast('Lỗi: ' + err.message)));
 
-  $('toast-undo').addEventListener('click', async () => { const fn = undoFn; hideToast(); if (fn) await fn(); });
+  initToast();
 
   render();
 }
 
-export { showToast };

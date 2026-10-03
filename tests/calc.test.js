@@ -241,12 +241,29 @@ test('validateBackup accepts a valid file and counts records', () => {
 test('validateBackup rejects wrong shapes', () => {
   assert.equal(validateBackup(null).ok, false);
   assert.equal(validateBackup('x').ok, false);
-  assert.equal(validateBackup({ ...goodBackup(), schemaVersion: 2 }).ok, false);
+  assert.equal(validateBackup({ ...goodBackup(), schemaVersion: 3 }).ok, false);
+  assert.equal(validateBackup({ ...goodBackup(), schemaVersion: 2, workouts: 'x' }).ok, false);
+  assert.equal(validateBackup({ ...goodBackup(), schemaVersion: 2, workouts: [{ id: 'w', date: '2026-10-03', status: 'done', exercises: [{ exerciseId: 'b', sets: [{ kg: 'x', reps: 5 }] }] }] }).ok, false);
+  assert.equal(validateBackup({ ...goodBackup(), schemaVersion: 2, exercises: [{ id: 'e', name: '', muscle: 'chest' }] }).ok, false);
   assert.equal(validateBackup({ ...goodBackup(), weights: 'no' }).ok, false);
   assert.equal(validateBackup({ ...goodBackup(), weights: [{ date: '3/10/2026', kg: 60 }] }).ok, false);
   assert.equal(validateBackup({ ...goodBackup(), weights: [{ date: '2026-10-03', kg: -1 }] }).ok, false);
   assert.equal(validateBackup({ ...goodBackup(), foodLogs: [{ id: 'x', date: '2026-10-03', mealSlot: 'brunch', servings: 1, kcal: 1, protein: 1, carb: 1, fat: 1 }] }).ok, false);
   assert.equal(validateBackup({ ...goodBackup(), foods: [{ id: 'x', name: '' }] }).ok, false);
+});
+
+test('validateBackup v2 counts training data; missing arrays allowed', () => {
+  const r = validateBackup({
+    ...goodBackup(), schemaVersion: 2,
+    workouts: [{ id: 'w1', date: '2026-10-03', status: 'done', startedAt: 0, endedAt: 1, exercises: [{ exerciseId: 'bench-press', sets: [{ kg: 60, reps: 8, done: true }, { kg: null, reps: null, done: false }] }] }],
+    exercises: [{ id: 'x1', name: 'Bài tự tạo', muscle: 'chest', repMin: 8, repMax: 12 }],
+    templates: [{ id: 't1', name: 'Upper', exercises: [{ exerciseId: 'bench-press', sets: 3 }] }]
+  });
+  assert.equal(r.ok, true);
+  assert.deepEqual(r.counts, { weights: 1, foods: 1, foodLogs: 1, profile: true, workouts: 1, exercises: 1, templates: 1 });
+  const r2 = validateBackup({ ...goodBackup(), schemaVersion: 2 });
+  assert.equal(r2.ok, true);
+  assert.equal(r2.counts.workouts, 0);
 });
 
 test('validateBackup allows null profile and empty arrays', () => {

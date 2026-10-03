@@ -21,8 +21,15 @@ async function boot() {
     // First launch: ask Safari not to evict our IndexedDB.
     if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   }
-  const [weights, foods, logs] = await Promise.all([db.getWeights(), db.getFoods(), db.getFoodLogs()]);
-  init({ profile, weights, foods, logs }, { theme: initialTheme() });
+  if (!profile.templatesSeeded) {
+    await db.seedTemplates();
+    profile = { ...DEFAULT_PROFILE, ...profile, templatesSeeded: true };
+    await db.saveProfile(profile);
+  }
+  const [weights, foods, logs, exercises, workouts, templates] = await Promise.all([
+    db.getWeights(), db.getFoods(), db.getFoodLogs(), db.getExercises(), db.getWorkouts(), db.getTemplates()
+  ]);
+  init({ profile, weights, foods, logs }, { theme: initialTheme(), training: { exercises, workouts, templates } });
 
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') refreshDay(); });
   registerSW();

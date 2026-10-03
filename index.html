@@ -138,6 +138,28 @@
   <p id="weight-note" style="margin:2px 6px 0;font-size:13px;line-height:1.45;color:var(--text3);text-wrap:pretty"></p>
 </section>
 
+<section id="screen-workout" data-screen-label="Tập luyện" style="display:flex;flex-direction:column;gap:12px" hidden>
+  <header style="display:flex;flex-direction:column;gap:2px;padding:4px 4px 6px">
+    <span id="wk-subtitle" style="font-size:13px;font-weight:600;color:var(--text3);letter-spacing:.02em"></span>
+    <h1 style="margin:0;font-size:32px;font-weight:700;letter-spacing:-.02em">Tập luyện</h1>
+  </header>
+  <div id="wk-main" style="display:flex;flex-direction:column;gap:12px">
+    <div id="wk-week" style="background:var(--surface);border-radius:22px;padding:16px 18px;display:flex;flex-direction:column;gap:14px"></div>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;padding:10px 6px 0">
+      <span style="font-size:13px;font-weight:600;color:var(--text3)">BẮT ĐẦU BUỔI TẬP</span>
+      <button id="wk-tpl-edit" style="border:0;background:none;padding:0;color:var(--acc);font-size:13px;font-weight:600;cursor:pointer">Sửa</button>
+    </div>
+    <div id="wk-start" style="background:var(--surface);border-radius:18px;overflow:hidden"></div>
+    <span style="font-size:13px;font-weight:600;color:var(--text3);padding:10px 6px 0">SET / NHÓM CƠ · TUẦN NÀY</span>
+    <div id="wk-muscles" style="background:var(--surface);border-radius:22px;padding:16px 18px;display:flex;flex-direction:column;gap:10px"></div>
+    <span style="font-size:13px;font-weight:600;color:var(--text3);padding:10px 6px 0">TIẾN ĐỘ</span>
+    <div id="wk-progress" style="background:var(--surface);border-radius:18px;overflow:hidden"></div>
+    <span style="font-size:13px;font-weight:600;color:var(--text3);padding:10px 6px 0">LỊCH SỬ</span>
+    <div id="wk-history" style="background:var(--surface);border-radius:18px;overflow:hidden"></div>
+  </div>
+  <div id="wk-active" style="display:flex;flex-direction:column;gap:12px" hidden></div>
+</section>
+
 <section id="screen-settings" data-screen-label="Cài đặt" style="display:flex;flex-direction:column;gap:12px" hidden>
   <header style="padding:4px 4px 6px">
     <h1 style="margin:0;font-size:32px;font-weight:700;letter-spacing:-.02em">Cài đặt</h1>
@@ -212,6 +234,27 @@
     <span id="result-note" style="font-size:12px;color:var(--text3)"></span>
   </div>
 
+  <span style="font-size:13px;font-weight:600;color:var(--text3);padding:10px 6px 0">TẬP LUYỆN</span>
+  <div style="background:var(--surface);border-radius:18px;overflow:hidden">
+    <div style="display:flex;flex-direction:column;gap:10px;padding:12px 16px 14px">
+      <span style="font-size:16px">Thời gian nghỉ giữa set</span>
+      <div id="rest-select" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:var(--surface2);border-radius:12px;padding:3px">
+        <button data-value="60" style="height:40px;border:0;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:background .2s">1:00</button>
+        <button data-value="90" style="height:40px;border:0;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:background .2s">1:30</button>
+        <button data-value="120" style="height:40px;border:0;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:background .2s">2:00</button>
+        <button data-value="180" style="height:40px;border:0;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:background .2s">3:00</button>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;padding:12px 16px 14px;border-top:1px solid var(--line)">
+      <span style="font-size:16px">Bước tăng tạ</span>
+      <div id="increment-select" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:var(--surface2);border-radius:12px;padding:3px">
+        <button data-value="1.25" style="height:40px;border:0;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:background .2s">1,25 kg</button>
+        <button data-value="2.5" style="height:40px;border:0;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:background .2s">2,5 kg</button>
+        <button data-value="5" style="height:40px;border:0;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:background .2s">5 kg</button>
+      </div>
+    </div>
+  </div>
+
   <span style="font-size:13px;font-weight:600;color:var(--text3);padding:10px 6px 0">GIAO DIỆN</span>
   <div id="theme-select" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));background:var(--surface);border-radius:14px;padding:3px">
     <button data-value="dark" style="height:44px;border:0;border-radius:11px;font-size:15px;font-weight:600;cursor:pointer">Tối</button>
@@ -238,7 +281,7 @@
       </div>
     </div>
   </div>
-  <span id="app-version" style="font-size:12px;color:var(--text3);text-align:center;padding:12px 0 0">Lên Cân · v1.0 · dữ liệu lưu trên máy</span>
+  <span id="app-version" style="font-size:12px;color:var(--text3);text-align:center;padding:12px 0 0">Lên Cân · v2.0 · dữ liệu lưu trên máy</span>
 </section>
 
 </main>
@@ -247,6 +290,17 @@
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--acc)" style="flex:none;stroke-width:2.4px;stroke-linecap:round;stroke-linejoin:round"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"></path></svg>
   <span style="flex:1">Có bản mới — <span style="color:var(--acc)">tải lại</span></span>
 </button>
+
+<div id="rest-timer" role="timer" style="position:absolute;left:16px;right:16px;top:calc(env(safe-area-inset-top,0px) + 8px);z-index:39;display:flex;flex-direction:column;gap:8px;padding:10px 8px 10px 16px;border-radius:16px;background:var(--surface2);box-shadow:0 10px 30px rgba(0,0,0,.3)" hidden>
+  <div style="display:flex;align-items:center;gap:8px">
+    <span style="font-size:13px;color:var(--text2)">Nghỉ</span>
+    <span id="rest-left" style="flex:1;font-size:22px;font-weight:700;letter-spacing:-.02em">1:30</span>
+    <button data-rest="-15" style="min-height:36px;padding:0 10px;border:0;border-radius:10px;background:var(--surface);font-size:14px;font-weight:600;cursor:pointer">−15s</button>
+    <button data-rest="15" style="min-height:36px;padding:0 10px;border:0;border-radius:10px;background:var(--surface);font-size:14px;font-weight:600;cursor:pointer">+15s</button>
+    <button data-rest="skip" style="min-height:36px;padding:0 10px;border:0;background:none;color:var(--acc);font-size:14px;font-weight:700;cursor:pointer">Bỏ qua</button>
+  </div>
+  <div style="height:4px;border-radius:2px;background:var(--track);overflow:hidden;margin-right:8px"><div id="rest-bar" style="height:100%;border-radius:2px;background:var(--acc);width:100%;transition:width 1s linear"></div></div>
+</div>
 
 <div id="toast" role="status" style="position:absolute;left:16px;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 98px);z-index:20;display:flex;align-items:center;gap:12px;padding:0 6px 0 16px;min-height:52px;border-radius:16px;background:var(--surface2);box-shadow:0 10px 30px rgba(0,0,0,.3)" hidden>
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--acc)" style="flex:none;stroke-width:2.6px;stroke-linecap:round;stroke-linejoin:round"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg>
@@ -268,10 +322,10 @@
       <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width:2.6px;stroke-linecap:round"><path d="M12 5v14M5 12h14"></path></svg>
     </button>
   </div>
-  <button data-tab="workout" disabled="" aria-disabled="true" style="min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:0;color:var(--text3);opacity:.5;position:relative">
+  <button data-tab="workout" style="min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:0;cursor:pointer;color:var(--text3);position:relative">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width:1.9px;stroke-linecap:round;stroke-linejoin:round"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"></path></svg>
     <span style="font-size:10px;font-weight:600">Tập luyện</span>
-    <span style="position:absolute;top:2px;right:8px;font-size:8px;font-weight:700;padding:1px 4px;border-radius:4px;background:var(--surface2);color:var(--text2)">v2</span>
+    <span id="wk-badge" style="position:absolute;top:2px;right:4px;font-size:9px;font-weight:700;padding:1px 4px;border-radius:4px;background:var(--acc);color:var(--onacc)" hidden></span>
   </button>
   <button data-tab="settings" style="min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:0;cursor:pointer;color:var(--text3)">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="stroke-width:1.9px;stroke-linecap:round;stroke-linejoin:round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"></path><circle cx="16" cy="7" r="2"></circle><circle cx="10" cy="17" r="2"></circle></svg>
@@ -362,6 +416,16 @@
     <button id="food-form-cancel" type="button" style="height:48px;border-radius:16px;border:0;background:var(--surface2);font-size:15px;font-weight:600;cursor:pointer">Huỷ</button>
     <button id="food-form-delete" type="button" style="height:48px;border-radius:16px;border:0;background:none;color:var(--p);font-size:15px;font-weight:600;cursor:pointer" hidden>Xoá món</button>
   </form>
+</div>
+
+<div id="wk-sheet-scrim" style="position:absolute;inset:0;z-index:32;background:var(--scrim);transition:opacity .28s;opacity:0;pointer-events:none"></div>
+<div id="wk-sheet" role="dialog" aria-label="Bài tập" style="position:absolute;left:0;right:0;bottom:0;z-index:33;height:88%;display:flex;flex-direction:column;background:var(--sheet);border-radius:26px 26px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.3);transition:transform .36s cubic-bezier(.2,.9,.25,1);transform:translateY(105%)" aria-hidden="true">
+  <div style="display:flex;justify-content:center;padding:8px 0 2px"><span style="width:38px;height:5px;border-radius:3px;background:var(--track)"></span></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 8px 8px 20px">
+    <span id="wk-sheet-title" style="font-size:20px;font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+    <button id="wk-sheet-done" style="min-height:44px;padding:0 12px;border:0;background:none;color:var(--acc);font-size:16px;font-weight:600;cursor:pointer;flex:none">Xong</button>
+  </div>
+  <div id="wk-sheet-body" style="flex:1;overflow-y:auto;padding:0 16px calc(env(safe-area-inset-bottom,0px) + 16px);display:flex;flex-direction:column;gap:12px"></div>
 </div>
 
 </div>

@@ -1,5 +1,5 @@
 // Bump on every release so clients get the "Có bản mới — tải lại" banner.
-const CACHE_VERSION = 'v1.0.0';
+const CACHE_VERSION = 'v2.0.0';
 const CACHE = `len-can-${CACHE_VERSION}`;
 const SHELL = [
   './',
@@ -9,7 +9,11 @@ const SHELL = [
   './js/ui.js',
   './js/db.js',
   './js/calc.js',
+  './js/dom.js',
+  './js/workout.js',
+  './js/training.js',
   './data/foods.seed.js',
+  './data/exercises.seed.js',
   './manifest.webmanifest',
   './icons/apple-touch-icon-180.png',
   './icons/icon-192.png',
